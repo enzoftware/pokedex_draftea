@@ -10,7 +10,7 @@ class PokedexApiService {
   final Dio _dio;
 
   Future<PokemonListResponse> getPokemonList({
-    int limit = 20,
+    int limit = 10,
     int offset = 0,
   }) async {
     try {

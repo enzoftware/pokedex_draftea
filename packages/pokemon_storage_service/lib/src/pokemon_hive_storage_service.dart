@@ -15,7 +15,7 @@ class PokemonHiveStorageService implements PokemonStorageService {
   }
 
   @override
-  Future<PokemonEntity?> getPokemon({required String id}) async {
+  Future<PokemonEntity?> getPokemonById({required String id}) async {
     final entity = _pokemonBox.get(id);
     return entity;
   }

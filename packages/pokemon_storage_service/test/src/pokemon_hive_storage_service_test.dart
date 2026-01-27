@@ -57,7 +57,7 @@ void main() {
         );
         when(() => box.get('1')).thenReturn(entity);
 
-        final result = await storageService.getPokemon(id: '1');
+        final result = await storageService.getPokemonById(id: '1');
 
         expect(result, equals(entity));
         verify(() => box.get('1')).called(1);
@@ -66,7 +66,7 @@ void main() {
       test('returns null when not found', () async {
         when(() => box.get('1')).thenReturn(null);
 
-        final result = await storageService.getPokemon(id: '1');
+        final result = await storageService.getPokemonById(id: '1');
 
         expect(result, isNull);
       });

@@ -1,0 +1,21 @@
+name: pokemon_repository
+description: A Very Good Project created by Very Good CLI.
+version: 0.1.0+1
+publish_to: none
+
+environment:
+  sdk: ^3.9.0
+
+dependencies:
+  connectivity_plus: ^7.0.0
+  pokedex_api_service:
+    path: ../pokedex_api_service
+  pokedex_models:
+    path: ../pokedex_models
+  pokemon_storage_service:
+    path: ../pokemon_storage_service
+
+dev_dependencies:
+  mocktail: ^1.0.4
+  test: ^1.26.3
+  very_good_analysis: ^10.0.0

@@ -9,12 +9,26 @@ environment:
 
 dependencies:
   bloc: ^9.0.1
+  cached_network_image: ^3.4.1
+  connectivity_plus: ^7.0.0
+  dio: ^5.9.1
+  equatable: ^2.0.8
   flutter:
     sdk: flutter
   flutter_bloc: ^9.1.1
   flutter_localizations:
     sdk: flutter
+  hive_ce: ^2.19.1
   intl: ^0.20.2
+  path_provider: ^2.1.5
+  pokedex_api_service:
+    path: packages/pokedex_api_service
+  pokedex_models:
+    path: packages/pokedex_models
+  pokemon_repository:
+    path: packages/pokemon_repository
+  pokemon_storage_service:
+    path: packages/pokemon_storage_service
 
 dev_dependencies:
   bloc_test: ^10.0.0

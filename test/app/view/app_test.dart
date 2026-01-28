@@ -24,9 +24,30 @@ void main() {
       apiService = MockPokedexApiService();
       storageService = MockPokemonStorageService();
       connectivity = MockConnectivity();
+
+      when(() => connectivity.checkConnectivity()).thenAnswer(
+        (_) async => [ConnectivityResult.wifi],
+      );
+      when(
+        () => apiService.getPokemonList(
+          offset: any(named: 'offset'),
+          limit: any(named: 'limit'),
+        ),
+      ).thenAnswer(
+        (_) async => const PokemonListResponse(count: 0, results: []),
+      );
+      when(
+        () => storageService.savePokemons(pokemons: any(named: 'pokemons')),
+      ).thenAnswer((_) async {});
+      when(
+        () => storageService.getCachePokemons(
+          offset: any(named: 'offset'),
+          limit: any(named: 'limit'),
+        ),
+      ).thenAnswer((_) async => []);
     });
 
-    testWidgets('renders CounterPage', (tester) async {
+    testWidgets('renders PokedexPage', (tester) async {
       await tester.pumpWidget(
         PokedexApp(
           apiService: apiService,

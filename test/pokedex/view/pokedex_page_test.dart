@@ -6,6 +6,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:pokedex_draftea/app/cubit/app_cubit.dart';
 import 'package:pokedex_draftea/pokedex/pokedex.dart';
 import 'package:pokedex_draftea/pokedex/view/widgets/pokeball_spinner.dart';
+import 'package:pokedex_draftea/pokedex/view/widgets/pokemon_card/pokemon_card.dart';
 import 'package:pokedex_models/pokedex_models.dart';
 import 'package:pokemon_repository/pokemon_repository.dart';
 
@@ -23,7 +24,9 @@ void main() {
 
     setUp(() {
       repository = MockPokemonRepository();
-      when(() => repository.getPokemons()).thenAnswer((_) async => []);
+      when(
+        () => repository.getPokemons(offset: any(named: 'offset')),
+      ).thenAnswer((_) async => []);
       appCubit = MockAppCubit();
       when(() => appCubit.state).thenReturn(const AppState());
     });
@@ -106,11 +109,16 @@ void main() {
           ),
         ),
       );
-      await tester.pump();
-      await tester.pump(const Duration(seconds: 5));
+      // Pump to render the initial frame
       await tester.pump();
       expect(find.byType(CustomScrollView), findsOneWidget);
-      expect(find.text('BULBASAUR'), findsOneWidget);
+      expect(find.byType(PokemonCard), findsOneWidget);
+      // Pump entrance animation (500ms)
+      await tester.pump(const Duration(milliseconds: 600));
+      // Pump delay (200ms)
+      await tester.pump(const Duration(milliseconds: 300));
+      // Pump flip animation (800ms)
+      await tester.pump(const Duration(milliseconds: 900));
     });
 
     testWidgets(

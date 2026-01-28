@@ -25,7 +25,9 @@ void main() {
       'emits [loading, success] when loadPokemons succeeds',
       build: () => PokedexCubit(repository: repository),
       setUp: () {
-        when(() => repository.getPokemons()).thenAnswer((_) async => []);
+        when(
+          () => repository.getPokemons(offset: any(named: 'offset')),
+        ).thenAnswer((_) async => []);
       },
       act: (cubit) => cubit.loadPokemons(),
       expect: () => [
@@ -38,7 +40,9 @@ void main() {
       'emits [loading, failure] when loadPokemons fails',
       build: () => PokedexCubit(repository: repository),
       setUp: () {
-        when(() => repository.getPokemons()).thenThrow(Exception('oops'));
+        when(
+          () => repository.getPokemons(offset: any(named: 'offset')),
+        ).thenThrow(Exception('oops'));
       },
       act: (cubit) => cubit.loadPokemons(),
       expect: () => [

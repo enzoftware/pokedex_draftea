@@ -10,8 +10,24 @@ class PokemonHiveStorageService implements PokemonStorageService {
   final Box<PokemonEntity> _pokemonBox;
 
   @override
-  Future<List<PokemonEntity>> getPokemons() async {
-    return _pokemonBox.values.toList();
+  Future<List<PokemonEntity>> getCachePokemons({
+    required int offset,
+    required int limit,
+  }) async {
+    final allPokemons = _pokemonBox.values.toList()
+      ..sort((a, b) => a.id.compareTo(b.id));
+
+    if (offset >= allPokemons.length) {
+      return [];
+    }
+
+    final end = (offset + limit).clamp(0, allPokemons.length);
+    return allPokemons.sublist(offset, end);
+  }
+
+  @override
+  Future<int> getPokemonsCount() async {
+    return _pokemonBox.length;
   }
 
   @override

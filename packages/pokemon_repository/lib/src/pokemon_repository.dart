@@ -19,15 +19,24 @@ class PokemonRepository {
   final PokedexApiService _apiService;
   final Connectivity _connectivity;
 
-  Future<List<Pokemon>> getPokemons() async {
+  Future<List<Pokemon>> getPokemons({
+    int offset = 0,
+    int limit = 10,
+  }) async {
     final connectivityResult = await _connectivity.checkConnectivity();
     if (connectivityResult.contains(ConnectivityResult.none)) {
-      final entities = await _storageService.getPokemons();
+      final entities = await _storageService.getCachePokemons(
+        offset: offset,
+        limit: limit,
+      );
       return entities.map((e) => e.toDomain()).toList();
     }
 
     try {
-      final response = await _apiService.getPokemonList();
+      final response = await _apiService.getPokemonList(
+        limit: limit,
+        offset: offset,
+      );
       final details = await Future.wait(
         response.results.map(
           (pokemon) => _apiService.getPokemonDetail(id: pokemon.id),
@@ -37,13 +46,21 @@ class PokemonRepository {
       final pokemons = details
           .map((pkmnDetail) => pkmnDetail.toPokemon())
           .toList();
+
       await _storageService.savePokemons(pokemons: pokemons);
 
       return pokemons;
     } catch (error, stackTrace) {
-      final entities = await _storageService.getPokemons();
-      final cachedPokemons = entities.map((e) => e.toDomain()).toList();
-      throw GetPokemonsFailure(error, stackTrace, cachedPokemons);
+      // On error, try to return cached data for this page
+      final entities = await _storageService.getCachePokemons(
+        offset: offset,
+        limit: limit,
+      );
+      if (entities.isNotEmpty) {
+        final cachedPokemons = entities.map((e) => e.toDomain()).toList();
+        throw GetPokemonsFailure(error, stackTrace, cachedPokemons);
+      }
+      rethrow;
     }
   }
 

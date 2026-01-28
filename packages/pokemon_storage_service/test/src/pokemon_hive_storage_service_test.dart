@@ -16,8 +16,51 @@ void main() {
       storageService = PokemonHiveStorageService(pokemonBox: box);
     });
 
-    group('getPokemons', () {
-      test('returns list of entities from box', () async {
+    group('getPokemonsPaginated', () {
+      test('returns paginated list sorted by id', () async {
+        const entity1 = PokemonEntity(
+          id: 3,
+          name: 'venusaur',
+          imageUrl: 'url',
+          baseExperience: 64,
+          height: 7,
+          weight: 69,
+          types: [],
+          sprites: PokemonSpritesEntity(frontDefault: 'url'),
+        );
+        const entity2 = PokemonEntity(
+          id: 1,
+          name: 'bulbasaur',
+          imageUrl: 'url',
+          baseExperience: 64,
+          height: 7,
+          weight: 69,
+          types: [],
+          sprites: PokemonSpritesEntity(frontDefault: 'url'),
+        );
+        const entity3 = PokemonEntity(
+          id: 2,
+          name: 'ivysaur',
+          imageUrl: 'url',
+          baseExperience: 64,
+          height: 7,
+          weight: 69,
+          types: [],
+          sprites: PokemonSpritesEntity(frontDefault: 'url'),
+        );
+        when(() => box.values).thenReturn([entity1, entity2, entity3]);
+
+        final result = await storageService.getCachePokemons(
+          offset: 0,
+          limit: 2,
+        );
+
+        expect(result.length, equals(2));
+        expect(result[0].id, equals(1));
+        expect(result[1].id, equals(2));
+      });
+
+      test('returns empty list when offset exceeds count', () async {
         const entity = PokemonEntity(
           id: 1,
           name: 'bulbasaur',
@@ -30,18 +73,62 @@ void main() {
         );
         when(() => box.values).thenReturn([entity]);
 
-        final result = await storageService.getPokemons();
-
-        expect(result, equals([entity]));
-        verify(() => box.values).called(1);
-      });
-
-      test('returns empty list when box is empty', () async {
-        when(() => box.values).thenReturn([]);
-
-        final result = await storageService.getPokemons();
+        final result = await storageService.getCachePokemons(
+          offset: 5,
+          limit: 10,
+        );
 
         expect(result, isEmpty);
+      });
+
+      test('returns remaining items when limit exceeds available', () async {
+        const entity1 = PokemonEntity(
+          id: 1,
+          name: 'bulbasaur',
+          imageUrl: 'url',
+          baseExperience: 64,
+          height: 7,
+          weight: 69,
+          types: [],
+          sprites: PokemonSpritesEntity(frontDefault: 'url'),
+        );
+        const entity2 = PokemonEntity(
+          id: 2,
+          name: 'ivysaur',
+          imageUrl: 'url',
+          baseExperience: 64,
+          height: 7,
+          weight: 69,
+          types: [],
+          sprites: PokemonSpritesEntity(frontDefault: 'url'),
+        );
+        when(() => box.values).thenReturn([entity1, entity2]);
+
+        final result = await storageService.getCachePokemons(
+          offset: 1,
+          limit: 10,
+        );
+
+        expect(result.length, equals(1));
+        expect(result[0].id, equals(2));
+      });
+    });
+
+    group('getPokemonsCount', () {
+      test('returns the count of pokemons in box', () async {
+        when(() => box.length).thenReturn(5);
+
+        final result = await storageService.getPokemonsCount();
+
+        expect(result, equals(5));
+      });
+
+      test('returns 0 when box is empty', () async {
+        when(() => box.length).thenReturn(0);
+
+        final result = await storageService.getPokemonsCount();
+
+        expect(result, equals(0));
       });
     });
 

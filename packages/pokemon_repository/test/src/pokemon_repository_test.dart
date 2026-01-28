@@ -64,18 +64,26 @@ void main() {
     });
 
     group('getPokemons', () {
-      test('returns cached data when offline', () async {
+      test('returns paginated cached data when offline', () async {
         when(() => connectivity.checkConnectivity()).thenAnswer(
           (_) async => [ConnectivityResult.none],
         );
-        when(() => storageService.getPokemons()).thenAnswer(
-          (_) async => [pokemonEntity],
-        );
+        when(
+          () => storageService.getCachePokemons(
+            offset: any(named: 'offset'),
+            limit: any(named: 'limit'),
+          ),
+        ).thenAnswer((_) async => [pokemonEntity]);
 
         final result = await repository.getPokemons();
 
         expect(result, equals([pokemon]));
-        verify(() => storageService.getPokemons()).called(1);
+        verify(
+          () => storageService.getCachePokemons(
+            offset: 0,
+            limit: 10,
+          ),
+        ).called(1);
         verifyNever(() => apiService.getPokemonList());
       });
 
@@ -135,9 +143,12 @@ void main() {
         when(
           () => apiService.getPokemonList(),
         ).thenThrow(Exception('API Error'));
-        when(() => storageService.getPokemons()).thenAnswer(
-          (_) async => [pokemonEntity],
-        );
+        when(
+          () => storageService.getCachePokemons(
+            offset: any(named: 'offset'),
+            limit: any(named: 'limit'),
+          ),
+        ).thenAnswer((_) async => [pokemonEntity]);
 
         try {
           await repository.getPokemons();
@@ -149,8 +160,7 @@ void main() {
       });
 
       test(
-        'throws GetPokemonsFailure with empty cache when API fails '
-        'and no cache',
+        'rethrows when API fails and no cached data available',
         () async {
           when(() => connectivity.checkConnectivity()).thenAnswer(
             (_) async => [ConnectivityResult.wifi],
@@ -158,16 +168,17 @@ void main() {
           when(
             () => apiService.getPokemonList(),
           ).thenThrow(Exception('API Error'));
-          when(() => storageService.getPokemons()).thenAnswer(
-            (_) async => [],
-          );
+          when(
+            () => storageService.getCachePokemons(
+              offset: any(named: 'offset'),
+              limit: any(named: 'limit'),
+            ),
+          ).thenAnswer((_) async => []);
 
-          try {
-            await repository.getPokemons();
-            fail('Should throw GetPokemonsFailure');
-          } on GetPokemonsFailure catch (e) {
-            expect(e.cachedPokemons, isEmpty);
-          }
+          await expectLater(
+            repository.getPokemons(),
+            throwsA(isA<Exception>()),
+          );
         },
       );
     });

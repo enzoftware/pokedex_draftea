@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -54,7 +55,7 @@ class _PokemonCardState extends State<PokemonCard>
       CurvedAnimation(parent: _flipController, curve: Curves.easeInOutBack),
     );
 
-    _startAnimation();
+    unawaited(_startAnimation());
   }
 
   Future<void> _startAnimation() async {

@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:bloc/bloc.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:path_provider/path_provider.dart';
@@ -42,8 +43,11 @@ Future<void> bootstrap(
   WidgetsFlutterBinding.ensureInitialized();
   Bloc.observer = const AppBlocObserver();
 
-  final directory = await getApplicationDocumentsDirectory();
-  final path = directory.path;
+  String? path;
+  if (!kIsWeb) {
+    final directory = await getApplicationDocumentsDirectory();
+    path = directory.path;
+  }
   Hive
     ..init(path)
     ..registerAdapters();

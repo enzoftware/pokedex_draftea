@@ -40,7 +40,7 @@ jobs:
         run: flutter build web --release --base-href "/pokedex_draftea/"
 
       - name: Upload build artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: build/web
 

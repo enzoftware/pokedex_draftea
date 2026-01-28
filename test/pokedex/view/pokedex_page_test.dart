@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:pokedex_draftea/app/cubit/app_cubit.dart';
 import 'package:pokedex_draftea/pokedex/pokedex.dart';
+import 'package:pokedex_draftea/pokedex/view/widgets/pokeball_spinner.dart';
 import 'package:pokedex_models/pokedex_models.dart';
 import 'package:pokemon_repository/pokemon_repository.dart';
 
@@ -12,20 +14,30 @@ class MockPokemonRepository extends Mock implements PokemonRepository {}
 class MockPokedexCubit extends MockCubit<PokedexState>
     implements PokedexCubit {}
 
+class MockAppCubit extends MockCubit<AppState> implements AppCubit {}
+
 void main() {
   group('PokedexPage', () {
     late PokemonRepository repository;
+    late AppCubit appCubit;
 
     setUp(() {
       repository = MockPokemonRepository();
       when(() => repository.getPokemons()).thenAnswer((_) async => []);
+      appCubit = MockAppCubit();
+      when(() => appCubit.state).thenReturn(const AppState());
     });
 
     testWidgets('renders PokedexView', (tester) async {
       await tester.pumpWidget(
         RepositoryProvider.value(
           value: repository,
-          child: const MaterialApp(home: PokedexPage()),
+          child: MaterialApp(
+            home: BlocProvider.value(
+              value: appCubit,
+              child: const PokedexPage(),
+            ),
+          ),
         ),
       );
       expect(find.byType(PokedexView), findsOneWidget);
@@ -34,9 +46,12 @@ void main() {
 
   group('PokedexView', () {
     late PokedexCubit cubit;
+    late AppCubit appCubit;
 
     setUp(() {
       cubit = MockPokedexCubit();
+      appCubit = MockAppCubit();
+      when(() => appCubit.state).thenReturn(const AppState());
     });
 
     testWidgets('renders loading indicator when status is loading', (
@@ -47,13 +62,16 @@ void main() {
       );
       await tester.pumpWidget(
         MaterialApp(
-          home: BlocProvider.value(
-            value: cubit,
+          home: MultiBlocProvider(
+            providers: [
+              BlocProvider.value(value: cubit),
+              BlocProvider.value(value: appCubit),
+            ],
             child: const PokedexView(),
           ),
         ),
       );
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(PokeballSpinner), findsOneWidget);
     });
 
     testWidgets('renders list of pokemons when status is success', (
@@ -65,6 +83,7 @@ void main() {
         imageUrl: 'url',
         height: 7,
         weight: 69,
+        baseExperience: 64,
         types: [],
         sprites: PokemonSprites(frontDefault: 'url'),
       );
@@ -76,14 +95,20 @@ void main() {
       );
       await tester.pumpWidget(
         MaterialApp(
-          home: BlocProvider.value(
-            value: cubit,
+          home: MultiBlocProvider(
+            providers: [
+              BlocProvider.value(value: cubit),
+              BlocProvider.value(value: appCubit),
+            ],
             child: const PokedexView(),
           ),
         ),
       );
-      expect(find.byType(ListView), findsOneWidget);
-      expect(find.text('bulbasaur'), findsOneWidget);
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pump();
+      expect(find.byType(GridView), findsOneWidget);
+      expect(find.text('BULBASAUR'), findsOneWidget);
     });
 
     testWidgets(
@@ -94,8 +119,11 @@ void main() {
         );
         await tester.pumpWidget(
           MaterialApp(
-            home: BlocProvider.value(
-              value: cubit,
+            home: MultiBlocProvider(
+              providers: [
+                BlocProvider.value(value: cubit),
+                BlocProvider.value(value: appCubit),
+              ],
               child: const PokedexView(),
             ),
           ),
@@ -112,8 +140,11 @@ void main() {
         );
         await tester.pumpWidget(
           MaterialApp(
-            home: BlocProvider.value(
-              value: cubit,
+            home: MultiBlocProvider(
+              providers: [
+                BlocProvider.value(value: cubit),
+                BlocProvider.value(value: appCubit),
+              ],
               child: const PokedexView(),
             ),
           ),

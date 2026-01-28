@@ -19,12 +19,15 @@ class PokemonCard extends StatefulWidget {
 }
 
 class _PokemonCardState extends State<PokemonCard>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   late final AnimationController _entranceController;
   late final AnimationController _flipController;
   late final Animation<double> _scaleAnimation;
   late final Animation<double> _fadeAnimation;
   late final Animation<double> _flipAnimation;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -68,6 +71,7 @@ class _PokemonCardState extends State<PokemonCard>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return FadeTransition(
       opacity: _fadeAnimation,
       child: ScaleTransition(

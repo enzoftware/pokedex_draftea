@@ -3,10 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pokedex_draftea/pokedex/pokedex.dart';
-import 'package:pokedex_draftea/pokedex/view/pokeball_image.dart';
+import 'package:pokedex_draftea/pokedex/view/landscape_pokedex_view.dart';
 import 'package:pokedex_draftea/pokedex/view/widgets/offline_mode_banner.dart';
 import 'package:pokedex_draftea/pokedex/view/widgets/pokeball_spinner.dart';
+import 'package:pokedex_draftea/pokedex/view/widgets/pokedex_app_bar.dart';
 import 'package:pokedex_draftea/pokedex/view/widgets/pokemon_card/pokemon_card.dart';
+import 'package:pokedex_draftea/pokedex/view/widgets/pokemon_empty_list.dart';
 import 'package:pokedex_draftea/pokedex/view/widgets/pokemons_error_view.dart';
 import 'package:pokemon_repository/pokemon_repository.dart';
 
@@ -23,7 +25,14 @@ class PokedexPage extends StatelessWidget {
         unawaited(cubit.loadPokemons());
         return cubit;
       },
-      child: const PokedexView(),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          if (constraints.maxWidth > 600) {
+            return const LandscapePokedexView();
+          }
+          return const PokedexView();
+        },
+      ),
     );
   }
 }
@@ -33,50 +42,110 @@ class PokedexView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const PokeballImage(),
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-      ),
+    return const Scaffold(
+      appBar: PokedexAppBar(),
       body: Column(
         children: [
-          const OfflineModeBanner(),
-          Expanded(
-            child: BlocBuilder<PokedexCubit, PokedexState>(
-              builder: (context, state) {
-                if (state.status == PokedexStatus.loading) {
-                  return const Center(child: PokeballSpinner());
-                }
+          OfflineModeBanner(),
+          PokedexBody(),
+        ],
+      ),
+    );
+  }
+}
 
-                if (state.status == PokedexStatus.failure &&
-                    state.pokemons.isEmpty) {
-                  return const PokemonsErrorView();
-                }
+class PokedexBody extends StatefulWidget {
+  const PokedexBody({super.key});
 
-                if (state.pokemons.isEmpty &&
-                    state.status == PokedexStatus.success) {
-                  return const Center(child: Text('No Pokemons found'));
-                }
+  @override
+  State<PokedexBody> createState() => _PokedexBodyState();
+}
 
-                return GridView.builder(
-                  padding: const EdgeInsets.all(16),
+class _PokedexBodyState extends State<PokedexBody> {
+  final _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_isBottom) {
+      context.read<PokedexCubit>().loadPokemons();
+    }
+  }
+
+  bool get _isBottom {
+    if (!_scrollController.hasClients) return false;
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.offset;
+    return currentScroll >= (maxScroll * 0.9);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: BlocConsumer<PokedexCubit, PokedexState>(
+        listener: (context, state) {
+          if (state.status == PokedexStatus.failure && state.pokemons.isEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Failed to load pokemons')),
+            );
+          }
+        },
+        builder: (context, state) {
+          if (state.status == PokedexStatus.loading && state.pokemons.isEmpty) {
+            return const Center(child: PokeballSpinner());
+          }
+
+          if (state.status == PokedexStatus.failure && state.pokemons.isEmpty) {
+            return const PokemonsErrorView();
+          }
+
+          if (state.pokemons.isEmpty && state.status == PokedexStatus.success) {
+            return const PokemonEmptyList();
+          }
+
+          return CustomScrollView(
+            controller: _scrollController,
+            slivers: [
+              SliverPadding(
+                padding: const EdgeInsets.all(16),
+                sliver: SliverGrid(
                   gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                     maxCrossAxisExtent: 200,
                     mainAxisSpacing: 16,
                     crossAxisSpacing: 16,
                     childAspectRatio: 2.5 / 3.5,
                   ),
-                  itemCount: state.pokemons.length,
-                  itemBuilder: (context, index) {
-                    final pokemon = state.pokemons[index];
-                    return PokemonCard(pokemon: pokemon);
-                  },
-                );
-              },
-            ),
-          ),
-        ],
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      final pokemon = state.pokemons[index];
+                      return PokemonCard(pokemon: pokemon);
+                    },
+                    childCount: state.pokemons.length,
+                  ),
+                ),
+              ),
+              if (state.status == PokedexStatus.loading)
+                const SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.all(24),
+                    child: Center(
+                      child: PokeballSpinner(),
+                    ),
+                  ),
+                ),
+            ],
+          );
+        },
       ),
     );
   }

@@ -29,6 +29,7 @@ void main() {
     });
 
     testWidgets('renders PokedexView', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(400, 800));
       await tester.pumpWidget(
         RepositoryProvider.value(
           value: repository,
@@ -93,6 +94,7 @@ void main() {
           pokemons: [pokemon],
         ),
       );
+      await tester.binding.setSurfaceSize(const Size(400, 800));
       await tester.pumpWidget(
         MaterialApp(
           home: MultiBlocProvider(
@@ -107,7 +109,7 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(seconds: 5));
       await tester.pump();
-      expect(find.byType(GridView), findsOneWidget);
+      expect(find.byType(CustomScrollView), findsOneWidget);
       expect(find.text('BULBASAUR'), findsOneWidget);
     });
 

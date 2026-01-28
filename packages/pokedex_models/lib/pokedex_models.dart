@@ -1,4 +1,3 @@
-/// A Very Good Project created by Very Good CLI.
-library;
-
-export 'src/pokedex_models.dart';
+export 'src/pokemon.dart';
+export 'src/pokemon_sprites.dart';
+export 'src/pokemon_type.dart';

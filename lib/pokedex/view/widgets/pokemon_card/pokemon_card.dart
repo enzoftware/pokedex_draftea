@@ -54,12 +54,19 @@ class _PokemonCardState extends State<PokemonCard>
       CurvedAnimation(parent: _flipController, curve: Curves.easeInOutBack),
     );
 
-    // Chain animations: Entrance -> Wait -> Flip
-    _entranceController.forward().then((_) {
-      Future.delayed(const Duration(milliseconds: 200), () {
-        if (mounted) _flipController.forward();
-      });
-    });
+    _startAnimation();
+  }
+
+  Future<void> _startAnimation() async {
+    try {
+      await _entranceController.forward();
+      if (!mounted) return;
+      await Future<void>.delayed(const Duration(milliseconds: 200));
+      if (!mounted) return;
+      await _flipController.forward();
+    } on Exception catch (_) {
+      return;
+    }
   }
 
   @override

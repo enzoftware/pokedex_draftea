@@ -47,7 +47,7 @@ class PokedexView extends StatelessWidget {
       body: Column(
         children: [
           OfflineModeBanner(),
-          PokedexBody(),
+          Expanded(child: PokedexBody()),
         ],
       ),
     );
@@ -72,13 +72,21 @@ class _PokedexBodyState extends State<PokedexBody> {
 
   @override
   void dispose() {
-    _scrollController.dispose();
+    _scrollController
+      ..removeListener(_onScroll)
+      ..dispose();
     super.dispose();
   }
 
   void _onScroll() {
+    final state = context.read<PokedexCubit>().state;
+    // Prevent loading if already loading or loadingMore
+    if (state.status == PokedexStatus.loading ||
+        state.status == PokedexStatus.loadingMore) {
+      return;
+    }
     if (_isBottom) {
-      context.read<PokedexCubit>().loadPokemons();
+      unawaited(context.read<PokedexCubit>().loadPokemons());
     }
   }
 
@@ -91,62 +99,60 @@ class _PokedexBodyState extends State<PokedexBody> {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: BlocConsumer<PokedexCubit, PokedexState>(
-        listener: (context, state) {
-          if (state.status == PokedexStatus.failure && state.pokemons.isEmpty) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Failed to load pokemons')),
-            );
-          }
-        },
-        builder: (context, state) {
-          if (state.status == PokedexStatus.loading && state.pokemons.isEmpty) {
-            return const Center(child: PokeballSpinner());
-          }
+    return BlocConsumer<PokedexCubit, PokedexState>(
+      listener: (context, state) {
+        if (state.status == PokedexStatus.failure && state.pokemons.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to load pokemons')),
+          );
+        }
+      },
+      builder: (context, state) {
+        if (state.status == PokedexStatus.loading && state.pokemons.isEmpty) {
+          return const Center(child: PokeballSpinner());
+        }
 
-          if (state.status == PokedexStatus.failure && state.pokemons.isEmpty) {
-            return const PokemonsErrorView();
-          }
+        if (state.status == PokedexStatus.failure && state.pokemons.isEmpty) {
+          return const PokemonsErrorView();
+        }
 
-          if (state.pokemons.isEmpty && state.status == PokedexStatus.success) {
-            return const PokemonEmptyList();
-          }
+        if (state.pokemons.isEmpty && state.status == PokedexStatus.success) {
+          return const PokemonEmptyList();
+        }
 
-          return CustomScrollView(
-            controller: _scrollController,
-            slivers: [
-              SliverPadding(
-                padding: const EdgeInsets.all(16),
-                sliver: SliverGrid(
-                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 200,
-                    mainAxisSpacing: 16,
-                    crossAxisSpacing: 16,
-                    childAspectRatio: 2.5 / 3.5,
-                  ),
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final pokemon = state.pokemons[index];
-                      return PokemonCard(pokemon: pokemon);
-                    },
-                    childCount: state.pokemons.length,
+        return CustomScrollView(
+          controller: _scrollController,
+          slivers: [
+            SliverPadding(
+              padding: const EdgeInsets.all(16),
+              sliver: SliverGrid(
+                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 200,
+                  mainAxisSpacing: 16,
+                  crossAxisSpacing: 16,
+                  childAspectRatio: 2.5 / 3.5,
+                ),
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    final pokemon = state.pokemons[index];
+                    return PokemonCard(pokemon: pokemon);
+                  },
+                  childCount: state.pokemons.length,
+                ),
+              ),
+            ),
+            if (state.status == PokedexStatus.loadingMore)
+              const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.all(24),
+                  child: Center(
+                    child: PokeballSpinner(),
                   ),
                 ),
               ),
-              if (state.status == PokedexStatus.loading)
-                const SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.all(24),
-                    child: Center(
-                      child: PokeballSpinner(),
-                    ),
-                  ),
-                ),
-            ],
-          );
-        },
-      ),
+          ],
+        );
+      },
     );
   }
 }

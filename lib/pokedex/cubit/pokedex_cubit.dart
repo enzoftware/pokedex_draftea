@@ -9,21 +9,49 @@ class PokedexCubit extends Cubit<PokedexState> {
        super(const PokedexState());
 
   final PokemonRepository _repository;
+  bool _isLoading = false;
 
-  Future<void> loadPokemons() async {
-    emit(state.copyWith(status: PokedexStatus.loading));
+  Future<void> loadPokemons({
+    int limit = 10,
+  }) async {
+    if (_isLoading) return;
+    _isLoading = true;
+
+    final isInitialLoad = state.pokemons.isEmpty;
+    final status = isInitialLoad
+        ? PokedexStatus.loading
+        : PokedexStatus.loadingMore;
+    emit(state.copyWith(status: status));
+
     try {
-      final pokemons = await _repository.getPokemons();
-      emit(state.copyWith(status: PokedexStatus.success, pokemons: pokemons));
-    } on GetPokemonsFailure catch (e) {
+      final offset = state.pokemons.length;
+      final newPokemons = await _repository.getPokemons(
+        offset: offset,
+        limit: limit,
+      );
+
       emit(
         state.copyWith(
-          status: PokedexStatus.failure,
-          pokemons: e.cachedPokemons,
+          status: PokedexStatus.success,
+          pokemons: [...state.pokemons, ...newPokemons],
         ),
       );
-    } catch (_) {
+    } on GetPokemonsFailure catch (e) {
+      final cached = e.cachedPokemons;
+      if (cached != null && cached.isNotEmpty) {
+        emit(
+          state.copyWith(
+            status: PokedexStatus.success,
+            pokemons: [...state.pokemons, ...cached],
+          ),
+        );
+      } else {
+        emit(state.copyWith(status: PokedexStatus.failure));
+      }
+    } on Exception catch (_) {
       emit(state.copyWith(status: PokedexStatus.failure));
+    } finally {
+      _isLoading = false;
     }
   }
 

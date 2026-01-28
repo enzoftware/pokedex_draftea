@@ -4,6 +4,7 @@ import 'package:pokedex_models/pokedex_models.dart';
 enum PokedexStatus {
   initial,
   loading,
+  loadingMore,
   success,
   failure,
 }

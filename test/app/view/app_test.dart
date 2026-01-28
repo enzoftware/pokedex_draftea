@@ -28,6 +28,9 @@ void main() {
       when(() => connectivity.checkConnectivity()).thenAnswer(
         (_) async => [ConnectivityResult.wifi],
       );
+      when(() => connectivity.onConnectivityChanged).thenAnswer(
+        (_) => Stream.value([ConnectivityResult.wifi]),
+      );
       when(
         () => apiService.getPokemonList(
           offset: any(named: 'offset'),

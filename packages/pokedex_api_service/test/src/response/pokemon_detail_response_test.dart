@@ -7,6 +7,7 @@ void main() {
       final json = <String, dynamic>{
         'id': 1,
         'name': 'bulbasaur',
+        'base_experience': 64,
         'height': 7,
         'weight': 69,
         'types': [
@@ -30,6 +31,7 @@ void main() {
 
       expect(response.id, 1);
       expect(response.name, 'bulbasaur');
+      expect(response.baseExperience, 64);
       expect(response.height, 7);
       expect(response.weight, 69);
       expect(response.types, hasLength(1));
@@ -53,6 +55,7 @@ void main() {
       final json = <String, dynamic>{
         'id': 1,
         'name': 'bulbasaur',
+        'base_experience': 64,
         'height': 7,
         'weight': 69,
         'types': <Map<String, dynamic>>[],
@@ -72,6 +75,7 @@ void main() {
       final json = <String, dynamic>{
         'id': 1,
         'name': 'bulbasaur',
+        'base_experience': 64,
         'height': 7,
         'weight': 69,
         'types': [
@@ -96,6 +100,7 @@ void main() {
 
       expect(pokemon.id, 1);
       expect(pokemon.name, 'bulbasaur');
+      expect(pokemon.baseExperience, 64);
       expect(pokemon.height, 7);
       expect(pokemon.weight, 69);
       expect(

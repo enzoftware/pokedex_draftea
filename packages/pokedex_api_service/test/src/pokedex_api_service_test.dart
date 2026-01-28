@@ -75,6 +75,7 @@ void main() {
         final responseData = {
           'id': 1,
           'name': 'bulbasaur',
+          'base_experience': 64,
           'height': 7,
           'weight': 69,
           'types': [

@@ -75,6 +75,7 @@ void main() {
         pokemon.props,
         equals([
           1,
+          64,
           'bulbasaur',
           'url',
           7,

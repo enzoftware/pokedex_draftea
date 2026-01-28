@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pokedex_draftea/pokedex/view/pokeball_image.dart';
@@ -18,9 +20,13 @@ class PokemonDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => PokedexDetailCubit(
-        pokemonRepository: context.read<PokemonRepository>(),
-      )..getPokemonDetail(id: pokemonId),
+      create: (context) {
+        final cubit = PokedexDetailCubit(
+          pokemonRepository: context.read<PokemonRepository>(),
+        );
+        unawaited(cubit.getPokemonDetail(id: pokemonId));
+        return cubit;
+      },
       child: LayoutBuilder(
         builder: (context, constraints) {
           if (constraints.maxWidth > 600) {
@@ -62,31 +68,30 @@ class PokemonDetailView extends StatelessWidget {
             title: Text(
               state.pokemon?.name.toUpperCase() ?? 'Pokemon Details',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             actions: [
               Text(
                 '#${state.pokemon?.id ?? ''}',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(width: 16),
             ],
           ),
           body: switch (state.status) {
             PokemonDetailStatus.initial ||
-            PokemonDetailStatus.loading =>
-              const _PokemonDetailLoading(),
+            PokemonDetailStatus.loading => const _PokemonDetailLoading(),
             PokemonDetailStatus.failure => _PokemonDetailError(
-                pokemonId: pokemonId,
-              ),
+              pokemonId: pokemonId,
+            ),
             PokemonDetailStatus.success => _PokemonDetailContent(
-                pokemon: state.pokemon!,
-              ),
+              pokemon: state.pokemon!,
+            ),
           },
         );
       },

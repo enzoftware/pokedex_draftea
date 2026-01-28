@@ -17,20 +17,25 @@ class PokemonEntityAdapter extends TypeAdapter<PokemonEntity> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return PokemonEntity(
-      id: (fields[0] as num).toInt(),
-      name: fields[1] as String,
-      imageUrl: fields[2] as String,
-      height: (fields[3] as num).toInt(),
-      weight: (fields[4] as num).toInt(),
-      types: (fields[5] as List).cast<PokemonTypeEntity>(),
-      sprites: fields[6] as PokemonSpritesEntity,
+      id: fields[0] == null ? 0 : (fields[0] as num).toInt(),
+      name: fields[1] == null ? '' : fields[1] as String,
+      imageUrl: fields[2] == null ? '' : fields[2] as String,
+      height: fields[3] == null ? 0 : (fields[3] as num).toInt(),
+      weight: fields[4] == null ? 0 : (fields[4] as num).toInt(),
+      types: fields[5] == null
+          ? []
+          : (fields[5] as List).cast<PokemonTypeEntity>(),
+      sprites: fields[6] == null
+          ? const PokemonSpritesEntity(frontDefault: '')
+          : fields[6] as PokemonSpritesEntity,
+      baseExperience: fields[7] == null ? 0 : (fields[7] as num).toInt(),
     );
   }
 
   @override
   void write(BinaryWriter writer, PokemonEntity obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -44,7 +49,9 @@ class PokemonEntityAdapter extends TypeAdapter<PokemonEntity> {
       ..writeByte(5)
       ..write(obj.types)
       ..writeByte(6)
-      ..write(obj.sprites);
+      ..write(obj.sprites)
+      ..writeByte(7)
+      ..write(obj.baseExperience);
   }
 
   @override

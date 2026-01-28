@@ -13,6 +13,7 @@ class PokemonEntity {
     required this.weight,
     required this.types,
     required this.sprites,
+    required this.baseExperience,
   });
 
   factory PokemonEntity.fromDomain(Pokemon pokemon) {
@@ -24,34 +25,39 @@ class PokemonEntity {
       weight: pokemon.weight,
       types: pokemon.types.map(PokemonTypeEntity.fromDomain).toList(),
       sprites: PokemonSpritesEntity.fromDomain(pokemon.sprites),
+      baseExperience: pokemon.baseExperience,
     );
   }
 
-  @HiveField(0)
+  @HiveField(0, defaultValue: 0)
   final int id;
 
-  @HiveField(1)
+  @HiveField(1, defaultValue: '')
   final String name;
 
-  @HiveField(2)
+  @HiveField(2, defaultValue: '')
   final String imageUrl;
 
-  @HiveField(3)
+  @HiveField(3, defaultValue: 0)
   final int height;
 
-  @HiveField(4)
+  @HiveField(4, defaultValue: 0)
   final int weight;
 
-  @HiveField(5)
+  @HiveField(5, defaultValue: <PokemonTypeEntity>[])
   final List<PokemonTypeEntity> types;
 
-  @HiveField(6)
+  @HiveField(6, defaultValue: PokemonSpritesEntity(frontDefault: ''))
   final PokemonSpritesEntity sprites;
+
+  @HiveField(7, defaultValue: 0)
+  final int baseExperience;
 
   Pokemon toDomain() {
     return Pokemon(
       id: id,
       name: name,
+      baseExperience: baseExperience,
       imageUrl: imageUrl,
       height: height,
       weight: weight,

@@ -9,6 +9,7 @@ void main() {
       name: 'bulbasaur',
       imageUrl: 'url',
       height: 7,
+      baseExperience: 64,
       weight: 69,
       types: [PokemonType(slot: 1, name: 'grass')],
       sprites: PokemonSprites(frontDefault: 'front', backDefault: 'back'),

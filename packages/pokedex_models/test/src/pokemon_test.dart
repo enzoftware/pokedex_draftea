@@ -11,6 +11,7 @@ void main() {
       expect(
         const Pokemon(
           id: 1,
+          baseExperience: 64,
           name: 'bulbasaur',
           imageUrl: 'url',
           height: 7,
@@ -25,6 +26,7 @@ void main() {
     test('supports value equality', () {
       const pokemon1 = Pokemon(
         id: 1,
+        baseExperience: 64,
         name: 'bulbasaur',
         imageUrl: 'url',
         height: 7,
@@ -35,6 +37,7 @@ void main() {
       const pokemon2 = Pokemon(
         id: 1,
         name: 'bulbasaur',
+        baseExperience: 64,
         imageUrl: 'url',
         height: 7,
         weight: 69,
@@ -43,6 +46,7 @@ void main() {
       );
       const pokemon3 = Pokemon(
         id: 2,
+        baseExperience: 142,
         name: 'ivysaur',
         imageUrl: 'url',
         height: 10,
@@ -58,6 +62,7 @@ void main() {
     test('props are correct', () {
       const pokemon = Pokemon(
         id: 1,
+        baseExperience: 64,
         name: 'bulbasaur',
         imageUrl: 'url',
         height: 7,

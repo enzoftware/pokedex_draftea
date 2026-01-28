@@ -23,6 +23,7 @@ void main() {
       id: 1,
       name: 'bulbasaur',
       imageUrl: 'image_url',
+      baseExperience: 64,
       height: 7,
       weight: 69,
       types: [PokemonType(slot: 1, name: 'grass')],
@@ -34,6 +35,7 @@ void main() {
       name: 'bulbasaur',
       imageUrl: 'image_url',
       height: 7,
+      baseExperience: 64,
       weight: 69,
       types: [PokemonTypeEntity(slot: 1, name: 'grass')],
       sprites: PokemonSpritesEntity(frontDefault: 'front'),
@@ -96,6 +98,7 @@ void main() {
           id: 1,
           name: 'bulbasaur',
           height: 7,
+          baseExperience: 64,
           weight: 69,
           types: [
             PokemonTypeResponse(

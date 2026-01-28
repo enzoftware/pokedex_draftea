@@ -22,6 +22,7 @@ void main() {
           id: 1,
           name: 'bulbasaur',
           imageUrl: 'url',
+          baseExperience: 64,
           height: 7,
           weight: 69,
           types: [],
@@ -49,6 +50,7 @@ void main() {
         const entity = PokemonEntity(
           id: 1,
           name: 'bulbasaur',
+          baseExperience: 64,
           imageUrl: 'url',
           height: 7,
           weight: 69,
@@ -78,6 +80,7 @@ void main() {
           id: 1,
           name: 'bulbasaur',
           imageUrl: 'url',
+          baseExperience: 64,
           height: 7,
           weight: 69,
           types: [],

@@ -7,6 +7,7 @@ part 'pokemon_detail_response.g.dart';
 class PokemonDetailResponse {
   const PokemonDetailResponse({
     required this.id,
+    required this.baseExperience,
     required this.name,
     required this.height,
     required this.weight,
@@ -18,6 +19,8 @@ class PokemonDetailResponse {
       _$PokemonDetailResponseFromJson(json);
 
   final int id;
+  @JsonKey(name: 'base_experience')
+  final num baseExperience;
   final String name;
   final int height;
   final int weight;
@@ -27,6 +30,7 @@ class PokemonDetailResponse {
   Pokemon toPokemon() {
     return Pokemon(
       id: id,
+      baseExperience: baseExperience.toInt(),
       name: name,
       imageUrl: sprites.frontDefault,
       height: height,

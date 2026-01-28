@@ -10,6 +10,7 @@ PokemonDetailResponse _$PokemonDetailResponseFromJson(
   Map<String, dynamic> json,
 ) => PokemonDetailResponse(
   id: (json['id'] as num).toInt(),
+  baseExperience: json['base_experience'] as num,
   name: json['name'] as String,
   height: (json['height'] as num).toInt(),
   weight: (json['weight'] as num).toInt(),

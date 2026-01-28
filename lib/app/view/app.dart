@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pokedex_api_service/pokedex_api_service.dart';
 import 'package:pokedex_draftea/app/cubit/app_cubit.dart';
+import 'package:pokedex_draftea/app/router/pokedex_router.dart';
 import 'package:pokedex_draftea/l10n/l10n.dart';
-import 'package:pokedex_draftea/pokedex/pokedex.dart';
 import 'package:pokemon_repository/pokemon_repository.dart';
 import 'package:pokemon_storage_service/pokemon_storage_service.dart';
 
@@ -34,7 +34,8 @@ class PokedexApp extends StatelessWidget {
       ],
       child: BlocProvider(
         create: (context) => AppCubit(connectivity: connectivity),
-        child: MaterialApp(
+        child: MaterialApp.router(
+          routerConfig: PokedexRouter.router,
           theme: ThemeData(
             appBarTheme: AppBarTheme(
               backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -43,7 +44,6 @@ class PokedexApp extends StatelessWidget {
           ),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
-          home: const PokedexPage(),
         ),
       ),
     );

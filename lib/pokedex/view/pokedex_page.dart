@@ -15,6 +15,8 @@ import 'package:pokemon_repository/pokemon_repository.dart';
 class PokedexPage extends StatelessWidget {
   const PokedexPage({super.key});
 
+  static const String route = '/pokedex';
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -100,13 +102,21 @@ class _PokedexBodyState extends State<PokedexBody> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<PokedexCubit, PokedexState>(
+      listenWhen: (previous, current) =>
+          previous.status != current.status &&
+          current.status == PokedexStatus.failure &&
+          current.pokemons.isEmpty,
       listener: (context, state) {
-        if (state.status == PokedexStatus.failure && state.pokemons.isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Failed to load pokemons')),
-          );
-        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to load pokemons'),
+            backgroundColor: Colors.red,
+          ),
+        );
       },
+      buildWhen: (previous, current) =>
+          previous.status != current.status ||
+          previous.pokemons.length != current.pokemons.length,
       builder: (context, state) {
         if (state.status == PokedexStatus.loading && state.pokemons.isEmpty) {
           return const Center(child: PokeballSpinner());

@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:pokedex_draftea/pokedex/view/widgets/pokeball_spinner.dart';
+import 'package:go_router/go_router.dart';
+import 'package:pokedex_draftea/pokedex/view/widgets/pokemon_cache_image.dart';
 import 'package:pokedex_draftea/pokedex/view/widgets/pokemon_card/pokemon_type_badge.dart';
 import 'package:pokedex_models/pokedex_models.dart';
 
@@ -24,7 +24,6 @@ class _PokemonCardState extends State<PokemonCard>
   late final AnimationController _entranceController;
   late final AnimationController _flipController;
   late final Animation<double> _scaleAnimation;
-  late final Animation<double> _fadeAnimation;
   late final Animation<double> _flipAnimation;
 
   @override
@@ -45,10 +44,6 @@ class _PokemonCardState extends State<PokemonCard>
 
     _scaleAnimation = Tween<double>(begin: 0.5, end: 1).animate(
       CurvedAnimation(parent: _entranceController, curve: Curves.easeOutBack),
-    );
-
-    _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _entranceController, curve: Curves.easeIn),
     );
 
     _flipAnimation = Tween<double>(begin: 0, end: math.pi).animate(
@@ -80,34 +75,31 @@ class _PokemonCardState extends State<PokemonCard>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return FadeTransition(
-      opacity: _fadeAnimation,
-      child: ScaleTransition(
-        scale: _scaleAnimation,
-        child: AnimatedBuilder(
-          animation: _flipAnimation,
-          builder: (context, child) {
-            final angle = _flipAnimation.value;
-            final isBack = angle < math.pi / 2;
-            final transform = Matrix4.identity()
-              ..setEntry(3, 2, 0.001)
-              ..rotateY(angle);
+    return ScaleTransition(
+      scale: _scaleAnimation,
+      child: AnimatedBuilder(
+        animation: _flipAnimation,
+        builder: (context, child) {
+          final angle = _flipAnimation.value;
+          final isBack = angle < math.pi / 2;
+          final transform = Matrix4.identity()
+            ..setEntry(3, 2, 0.001)
+            ..rotateY(angle);
 
-            return Transform(
-              transform: transform,
-              alignment: Alignment.center,
-              child: isBack
-                  ? const _PokemonCardBack()
-                  : Transform(
-                      alignment: Alignment.center,
-                      transform: Matrix4.identity()..rotateY(math.pi),
-                      child: _PokemonCardFront(
-                        pokemon: widget.pokemon,
-                      ),
+          return Transform(
+            transform: transform,
+            alignment: Alignment.center,
+            child: isBack
+                ? const _PokemonCardBack()
+                : Transform(
+                    alignment: Alignment.center,
+                    transform: Matrix4.identity()..rotateY(math.pi),
+                    child: _PokemonCardFront(
+                      pokemon: widget.pokemon,
                     ),
-            );
-          },
-        ),
+                  ),
+          );
+        },
       ),
     );
   }
@@ -130,7 +122,7 @@ class _PokemonCardFront extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
         onTap: () {
-          // TODO(user): Handle on tap
+          context.go('/pokedex/pokemon/${pokemon.id}');
         },
         child: Padding(
           padding: const EdgeInsets.all(8),
@@ -172,17 +164,7 @@ class _PokemonCardFront extends StatelessWidget {
               Expanded(
                 child: Hero(
                   tag: 'pokemon_${pokemon.id}',
-                  child: CachedNetworkImage(
-                    imageUrl: pokemon.imageUrl,
-                    placeholder: (context, url) => const Center(
-                      child: PokeballSpinner(),
-                    ),
-                    errorWidget: (context, url, error) => const Icon(
-                      Icons.error,
-                      color: Colors.red,
-                    ),
-                    fit: BoxFit.contain,
-                  ),
+                  child: PokemonCacheImage(imageUrl: pokemon.imageUrl),
                 ),
               ),
               SingleChildScrollView(

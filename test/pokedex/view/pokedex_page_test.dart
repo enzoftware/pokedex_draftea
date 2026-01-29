@@ -10,6 +10,8 @@ import 'package:pokedex_draftea/pokedex/view/widgets/pokemon_card/pokemon_card.d
 import 'package:pokedex_models/pokedex_models.dart';
 import 'package:pokemon_repository/pokemon_repository.dart';
 
+import '../../helpers/helpers.dart';
+
 class MockPokemonRepository extends Mock implements PokemonRepository {}
 
 class MockPokedexCubit extends MockCubit<PokedexState>
@@ -33,16 +35,10 @@ void main() {
 
     testWidgets('renders PokedexView', (tester) async {
       await tester.binding.setSurfaceSize(const Size(400, 800));
-      await tester.pumpWidget(
-        RepositoryProvider.value(
-          value: repository,
-          child: MaterialApp(
-            home: BlocProvider.value(
-              value: appCubit,
-              child: const PokedexPage(),
-            ),
-          ),
-        ),
+      await tester.pumpPokedexApp(
+        const PokedexPage(),
+        repository: repository,
+        appCubit: appCubit,
       );
       expect(find.byType(PokedexView), findsOneWidget);
     });

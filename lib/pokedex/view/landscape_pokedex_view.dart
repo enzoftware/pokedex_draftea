@@ -18,7 +18,11 @@ class LandscapePokedexView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PokedexAppBar.landscape(),
+      appBar: PokedexAppBar.landscape(
+        onRefresh: () {
+          unawaited(context.read<PokedexCubit>().refreshPokemons());
+        },
+      ),
       body: const SafeArea(
         child: Column(
           children: [
@@ -120,8 +124,8 @@ class _LoadMoreCard extends StatelessWidget {
               Text(
                 isLoading ? 'Loading...' : 'Load More',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),

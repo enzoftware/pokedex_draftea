@@ -55,7 +55,12 @@ class PokedexCubit extends Cubit<PokedexState> {
     }
   }
 
-  Future<void> clearPokemons() async {
+  Future<void> refreshPokemons() async {
+    await _clearPokemons();
+    await loadPokemons();
+  }
+
+  Future<void> _clearPokemons() async {
     try {
       await _repository.clearPokemons();
       emit(state.copyWith(pokemons: []));

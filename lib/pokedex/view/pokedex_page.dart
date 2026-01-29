@@ -44,9 +44,13 @@ class PokedexView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      appBar: PokedexAppBar(),
-      body: Column(
+    return Scaffold(
+      appBar: PokedexAppBar(
+        onRefresh: () {
+          unawaited(context.read<PokedexCubit>().refreshPokemons());
+        },
+      ),
+      body: const Column(
         children: [
           OfflineModeBanner(),
           Expanded(child: PokedexBody()),

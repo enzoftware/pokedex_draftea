@@ -16,7 +16,7 @@ void main() {
       storageService = PokemonHiveStorageService(pokemonBox: box);
     });
 
-    group('getPokemonsPaginated', () {
+    group('getCachePokemons', () {
       test('returns paginated list sorted by id', () async {
         const entity1 = PokemonEntity(
           id: 3,
@@ -132,7 +132,7 @@ void main() {
       });
     });
 
-    group('getPokemon', () {
+    group('getPokemonById', () {
       test('returns entity when found', () async {
         const entity = PokemonEntity(
           id: 1,

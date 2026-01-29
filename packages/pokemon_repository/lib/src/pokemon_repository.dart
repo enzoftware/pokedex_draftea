@@ -1,9 +1,7 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:pokedex_api_service/pokedex_api_service.dart';
 import 'package:pokedex_models/pokedex_models.dart';
-import 'package:pokemon_repository/src/exceptions/clear_pokemons_failure.dart';
-import 'package:pokemon_repository/src/exceptions/get_pokemon_detail_failure.dart';
-import 'package:pokemon_repository/src/exceptions/get_pokemons_failure.dart';
+import 'package:pokemon_repository/src/exceptions/exceptions.dart';
 import 'package:pokemon_storage_service/pokemon_storage_service.dart';
 
 class PokemonRepository {
@@ -51,7 +49,6 @@ class PokemonRepository {
 
       return pokemons;
     } catch (error, stackTrace) {
-      // On error, try to return cached data for this page
       final entities = await _storageService.getCachePokemons(
         offset: offset,
         limit: limit,
